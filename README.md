@@ -2,7 +2,6 @@
 
 > Transform your daily newsletters into an AI-powered audio briefing delivered through Alexa
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![n8n](https://img.shields.io/badge/n8n-Cloud-blue)](https://n8n.io)
 [![Claude AI](https://img.shields.io/badge/Claude-AI-purple)](https://anthropic.com)
 
