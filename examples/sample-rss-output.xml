@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Akhil's Tech Briefing</title>
+    <link>https://akhilneelam.app.n8n.cloud</link>
+    <description>Daily tech briefing generated from newsletters.</description>
+    <language>en-us</language>
+    <lastBuildDate>Mon, 12 Jan 2026 21:14:41 GMT</lastBuildDate>
+    
+    <item>
+      <title>Google announces a new protocol to facilitate commerce using AI agents</title>
+      <description>Here's a concise audio-friendly summary:
+
+Google has announced a new AI commerce protocol allowing merchants to offer discounts directly in AI search results, while Meta is expanding its green energy footprint by signing power deals with three nuclear companies. In tech news from CES 2026, major players like Nvidia and AMD are showcasing new chips, and Wing is set to expand its drone delivery service to over 270 Walmart stores by 2027.</description>
+      <guid isPermaLink="false">sf:Google announces a new protocol to facilitate commerce using AI agents|"TechCrunch Weekend" &lt;newsletters@techcrunch.com&gt;|2026-01-12</guid>
+      <pubDate>Mon, 12 Jan 2026 00:00:00 GMT</pubDate>
+    </item>
+
+    <item>
+      <title>Luminar lines up $22 million bidder for its lidar business</title>
+      <description>Here's a concise audio-friendly summary:
+
+Tech startup Luminar is fielding a $22 million bid for its lidar business, while French defense tech company Harmattan AI has raised $200 million and become a unicorn after investment from Dassault Aviation. In other news, Meta has hired former Trump advisor Dina Powell McCormick as president and vice chair, marking another significant leadership change in big tech.</description>
+      <guid isPermaLink="false">sf:Luminar lines up $22 million bidder for its lidar business|"TechCrunch Daily News" &lt;newsletters@techcrunch.com&gt;|2026-01-12</guid>
+      <pubDate>Mon, 12 Jan 2026 00:00:00 GMT</pubDate>
+    </item>
+  </channel>
+</rss>

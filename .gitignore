@@ -1,0 +1,58 @@
+# Credentials and API Keys
+*.env
+.env.local
+.env.*.local
+credentials.json
+secrets.json
+api-keys.txt
+
+# n8n specific
+.n8n/
+n8n-local.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Editor directories and files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.classpath
+.settings/
+*.sublime-*
+
+# Node
+node_modules/
+npm-debug.log
+package-lock.json
+yarn.lock
+
+# Personal notes
+notes.txt
+TODO.md
+personal/
+
+# Backup files
+*.bak
+*.backup
+backup/
+
+# Test files (if you add them later)
+test-data/
+*.test.json

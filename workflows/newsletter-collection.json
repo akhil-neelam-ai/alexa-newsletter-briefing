@@ -1,0 +1,303 @@
+{
+  "name": "Tech Briefing",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "q": "from:(techcrunch.com OR nytimes.com OR theverge.com OR axios.com OR unicorner.news OR lenny+how-i-ai@substack.com)"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "3cf3f7fb-99f7-4799-a174-45b1a9c12faa",
+      "name": "Gmail Trigger",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XYYQfeAuXvEQ4Lxg",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Extract email body from Gmail\nconst item = $input.item.json;\n\nlet emailBody = '';\n\n// Get HTML content directly from the html field\nif (item.html) {\n  // Strip HTML tags to get plain text\n  emailBody = item.html\n    .replace(/<style[^>]*>.*?<\\/style>/gs, '') // Remove style tags\n    .replace(/<script[^>]*>.*?<\\/script>/gs, '') // Remove script tags\n    .replace(/<[^>]+>/g, ' ') // Remove all HTML tags\n    .replace(/\\s+/g, ' ') // Collapse multiple spaces\n    .replace(/&nbsp;/g, ' ') // Replace &nbsp;\n    .replace(/&#8202;/g, '') // Remove special characters\n    .trim();\n}\n\n// Limit to first 4000 characters for Claude\nemailBody = emailBody.substring(0, 4000);\n\nreturn {\n  json: {\n    dedupeKey: `${item.subject}|${item.from}`,\n    subject: item.subject,\n    from: item.from,\n    EmailBody: emailBody,\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        0
+      ],
+      "id": "a0dd24f4-2c55-4473-a0c8-2dcc8a80d113",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "claude-3-5-haiku-20241022",
+          "mode": "list",
+          "cachedResultName": "claude-3-5-haiku-20241022"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "You are an expert at creating concise, audio-friendly news briefings. Convert newsletter content into 2-3 engaging sentences suitable for Alexa to read aloud. Focus on the most important news items. Be conversational and natural-sounding.",
+              "role": "assistant"
+            },
+            {
+              "content": "=Summarize this newsletter into 2-3 sentences for an audio briefing:\n\nSubject: {{ $json.Subject }}\nFrom: {{ $json.From }}\n\nContent:\n{{ $json.EmailBody }}"
+            }
+          ]
+        },
+        "simplify": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "typeVersion": 1,
+      "position": [
+        832,
+        0
+      ],
+      "id": "e02243fa-2a2e-47b5-8a90-36bf823d0f3e",
+      "name": "Message a model",
+      "credentials": {
+        "anthropicApi": {
+          "id": "rUCR22LqrYOqRU03",
+          "name": "Anthropic account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Code in JavaScript1\n// Mode: Run Once for Each Item\n\n// --- 1) Extract briefing text safely ---\nlet briefing =\n  item.content?.[0]?.text ??\n  item.content?.[0]?.message?.content?.[0]?.text ??\n  item.content ??\n  item.json?.content ??\n  item.json?.text ??\n  item.json?.briefing ??\n  \"\";\n\n// If briefing is an array/object, normalize to text\nif (Array.isArray(briefing)) {\n  briefing = briefing?.[0]?.text ?? JSON.stringify(briefing);\n} else if (briefing && typeof briefing === \"object\") {\n  briefing = briefing.text ?? JSON.stringify(briefing);\n}\nbriefing = String(briefing || \"\");\n\n// --- 2) Pull original email fields from previous node ---\nconst prev = $node[\"Code in JavaScript\"].json;\n\nconst subject = String(prev.Subject ?? prev.subject ?? \"Untitled\");\n\n// \"from\" can be an object like { text, html, value: [...] } in n8n\nlet fromVal = prev.From ?? prev.from ?? \"Unknown sender\";\nif (fromVal && typeof fromVal === \"object\") {\n  fromVal = fromVal.text ?? fromVal.name ?? fromVal.address ?? JSON.stringify(fromVal);\n}\nconst from = String(fromVal);\n\n// Prefer stable Gmail id if you have it\nconst gmailId = prev.id ?? prev.messageId ?? prev.threadId ?? \"\";\n\n// Use received/published date if present\nconst publishedAtRaw =\n  prev.publishedAt ??\n  prev.receivedAt ??\n  prev.received ??\n  new Date().toISOString();\n\nconst date = String(publishedAtRaw).slice(0, 10); // YYYY-MM-DD\n\n// --- 3) Stable dedupe key (avoid [object Object]) ---\nconst dedupeKey = gmailId\n  ? `gmail:${gmailId}`\n  : `sf:${subject}|${from}|${date}`;\n\n// --- 4) Output for Airtable mapping ---\nreturn {\n  json: {\n    dedupeKey,\n    subject,\n    from,\n    briefing,\n    publishedAt: publishedAtRaw,\n    date,\n  },\n};\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1184,
+        0
+      ],
+      "id": "ad712848-dc53-4461-85a9-a53181b4ebc1",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": 10,
+        "simple": false,
+        "filters": {
+          "q": "from:(techcrunch.com OR nytimes.com OR theverge.com OR axios.com) newer_than:7d"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "a1aa344e-12e6-4c67-9627-6e789fffe3d3",
+      "name": "Get many messages1",
+      "webhookId": "d8865237-bbe2-4a0b-b212-4ed736e1cef3",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XYYQfeAuXvEQ4Lxg",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "base": {
+          "__rl": true,
+          "value": "appbLw5xuVz8dZQQg",
+          "mode": "list",
+          "cachedResultName": "Newsletter briefings",
+          "cachedResultUrl": "https://airtable.com/appbLw5xuVz8dZQQg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl24PHWc9bZc6F7d",
+          "mode": "list",
+          "cachedResultName": "Newsletter briefings",
+          "cachedResultUrl": "https://airtable.com/appbLw5xuVz8dZQQg/tbl24PHWc9bZc6F7d"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Title": "={{ $json.subject }}",
+            "Summary": "={{ $json.briefing }}",
+            "Source": "={{ $json.from }}",
+            "DedupeKey": "={{ $json.dedupeKey }}"
+          },
+          "matchingColumns": [
+            "DedupeKey"
+          ],
+          "schema": [
+            {
+              "id": "DedupeKey",
+              "displayName": "DedupeKey",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Title",
+              "displayName": "Title",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Summary",
+              "displayName": "Summary",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Source",
+              "displayName": "Source",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "typecast": true
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        1392,
+        0
+      ],
+      "id": "0142e66d-5ece-4a8f-9bee-be3ca81ad07b",
+      "name": "Create or update a record",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "wyqlBJIgfYq9YDqP",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get many messages1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Message a model",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message a model": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Create or update a record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get many messages1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "f2a210c3-e1a4-449d-b354-923263b51af0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1e9cb9384cf49402426133d98cd0f6f3bb8937ff91097d1c2305933ca498b2b"
+  },
+  "id": "eXY5Mt3JdTs1SZCir_kJZ",
+  "tags": []
+}

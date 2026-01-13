@@ -1,0 +1,151 @@
+{
+  "name": "Alexa – Tech Briefing RSS",
+  "nodes": [
+    {
+      "parameters": {
+        "path": "alexa-tech-briefing",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "03b9f401-125f-4558-8118-651a4e01ca3a",
+      "name": "Webhook",
+      "webhookId": "0a687377-625f-4952-a823-a38416a8e167"
+    },
+    {
+      "parameters": {
+        "jsCode": "function escapeXml(str = '') {\n  return String(str)\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;')\n    .replace(/\"/g, '&quot;')\n    .replace(/'/g, '&apos;');\n}\n\nfunction toRfc822(dateStr) {\n  // Airtable date is usually YYYY-MM-DD. RFC822 needs a real date string.\n  const d = new Date(dateStr);\n  // Fallback if dateStr is missing/invalid\n  const safe = isNaN(d.getTime()) ? new Date() : d;\n  return safe.toUTCString();\n}\n\nconst items = $input.all().map((row) => {\n  const f = row.json.fields || row.json; // Airtable returns fields under .fields\n  const title = f.Title || 'Untitled';\n  const summary = f.Summary || '';\n  const source = f.Source || '';\n  const date = f.Date || new Date().toISOString().slice(0, 10);\n  const guid = f.DedupeKey || `${title}|${source}|${date}`;\n\n  return `\n    <item>\n      <title>${escapeXml(title)}</title>\n      <description>${escapeXml(summary)}</description>\n      <guid isPermaLink=\"false\">${escapeXml(guid)}</guid>\n      <pubDate>${escapeXml(toRfc822(date))}</pubDate>\n    </item>`;\n}).join('\\n');\n\nconst rss = `<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rss version=\"2.0\">\n  <channel>\n    <title>Akhil's Tech Briefing</title>\n    <link>https://akhilneelam.app.n8n.cloud</link>\n    <description>Daily tech briefing generated from newsletters.</description>\n    <language>en-us</language>\n    <lastBuildDate>${new Date().toUTCString()}</lastBuildDate>\n    ${items}\n  </channel>\n</rss>`;\n\nreturn [\n  {\n    json: {\n      rss,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        416,
+        0
+      ],
+      "id": "25dd0cc2-bfbd-40d9-880e-082bf6853e76",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "search",
+        "base": {
+          "__rl": true,
+          "value": "appbLw5xuVz8dZQQg",
+          "mode": "list",
+          "cachedResultName": "Newsletter briefings",
+          "cachedResultUrl": "https://airtable.com/appbLw5xuVz8dZQQg"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl24PHWc9bZc6F7d",
+          "mode": "list",
+          "cachedResultName": "Newsletter briefings",
+          "cachedResultUrl": "https://airtable.com/appbLw5xuVz8dZQQg/tbl24PHWc9bZc6F7d"
+        },
+        "filterByFormula": "AND(   IS_AFTER({Date}, DATEADD(TODAY(), -14, 'days')),   LEN({Title}) > 0,   LEN({Summary}) > 0,   LEN({Source}) > 0,   {Title} != \"Untitled\",   {Source} != \"Unknown sender\" )",
+        "returnAll": false,
+        "limit": 10,
+        "options": {},
+        "sort": {
+          "property": [
+            {
+              "field": "Date",
+              "direction": "desc"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.airtable",
+      "typeVersion": 2.1,
+      "position": [
+        208,
+        0
+      ],
+      "id": "ec1bf01f-85ed-4d2c-8963-b3935150c29f",
+      "name": "Search records",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "wyqlBJIgfYq9YDqP",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "text",
+        "responseBody": "={{$json.rss}}",
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "application/rss+xml; charset=utf-8"
+              }
+            ]
+          }
+        }
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        624,
+        0
+      ],
+      "id": "e46b6693-480a-47ea-b7fb-3868b8246eba",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Search records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search records": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "0361d9c7-1319-4140-8261-1a82d01bb7f1",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a1e9cb9384cf49402426133d98cd0f6f3bb8937ff91097d1c2305933ca498b2b"
+  },
+  "id": "X0HQy4s6WPyVyPxOLQ4mv",
+  "tags": []
+}
