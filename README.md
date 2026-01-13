@@ -8,7 +8,7 @@
 
 ## 📺 Demo
 
-[Watch the demo video](https://www.linkedin.com/in/akhilneelam/) *(Add your LinkedIn post link here)*
+[Watch the demo video](https://www.linkedin.com/posts/akhilneelam_techautomation-ai-productivityhack-activity-7416624475321913362-uPJW?utm_source=share&utm_medium=member_desktop&rcm=ACoAABBO9jYBzpbFmyeJuaql55xs2TnXfE7QS58) 
 
 **What it sounds like:**
 > "Alexa, what's my flash briefing?"
@@ -219,15 +219,10 @@ Contributions are welcome! Here are some ways you can help:
 
 Please read [CONTRIBUTING.md](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests.
 
-## 📝 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👤 Author
 
 **Akhil Neelam**
 - 🎓 MBA Student at UC Berkeley Haas (Class of 2027)
-- 💼 Former Product Manager in EdTech
 - 🔗 [LinkedIn](https://www.linkedin.com/in/akhilneelam/)
 - 📧 akhil_neelam@berkeley.edu
 
@@ -248,10 +243,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If this project helped you, please consider giving it a star! It helps others discover it.
 
-[![Star History Chart](https://api.star-history.com/svg?repos=yourusername/alexa-newsletter-briefing&type=Date)](https://star-history.com/#yourusername/alexa-newsletter-briefing&Date)
-
 ---
 
-**Built with ❤️ by Akhil Neelam**
-
-*Have questions? [Open an issue](https://github.com/yourusername/alexa-newsletter-briefing/issues) or reach out on [LinkedIn](https://www.linkedin.com/in/akhilneelam/)*
+*Have questions? reach out on [LinkedIn](https://www.linkedin.com/in/akhilneelam/)*
