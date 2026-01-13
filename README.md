@@ -87,19 +87,6 @@ This project solves that by turning my email clutter into a 2-minute daily audio
 | **Storage** | [Airtable](https://airtable.com) | Summary database |
 | **Voice** | Alexa Skills Kit | Audio delivery |
 
-## 💰 Cost Breakdown
-
-| Service | Cost | Notes |
-|---------|------|-------|
-| n8n Cloud | $20/month | Starter plan with 2,500 executions |
-| Claude API | ~$3/month | Pay-as-you-go (~$0.10/day for 3-5 newsletters) |
-| Airtable | Free | Free tier supports 1,200 records |
-| Gmail | Free | Standard Gmail account |
-| Alexa | Free | No cost for Flash Briefing skills |
-
-**Total: ~$23/month**
-
-**Time saved:** ~15 minutes every morning = **7.5 hours/month**
 
 ## 🚀 Quick Start
 
